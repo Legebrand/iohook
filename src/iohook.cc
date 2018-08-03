@@ -20,6 +20,7 @@ static bool sIsDebug = false;
 static HookProcessWorker* sIOHook = nullptr;
 
 static std::queue<uiohook_event> zqueue;
+static unsigned short int grab_event = 0x00;
 
 // Native thread errors.
 #define UIOHOOK_ERROR_THREAD_CREATE       0x10
@@ -122,6 +123,7 @@ void dispatch_proc(uiohook_event * const event) {
     case EVENT_MOUSE_MOVED:
     case EVENT_MOUSE_DRAGGED:
     case EVENT_MOUSE_WHEEL:
+      event->reserved = grab_event;
       uiohook_event event_copy;
       memcpy(&event_copy, event, sizeof(uiohook_event));
       zqueue.push(event_copy);
@@ -505,10 +507,25 @@ void HookProcessWorker::Stop()
   sIsRunning = false;
 }
 
+void grab_events(bool enabled) {
+	if (enabled) {
+		grab_event = 0x01;
+	} else {
+		grab_event = 0x00;
+	}
+}
+
 NAN_METHOD(GrabMouseClick) {
   if (info.Length() > 0)
   {
     grab_mouse_click(info[0]->IsTrue());
+  }
+}
+
+NAN_METHOD(GrabEvents) {
+  if (info.Length() > 0)
+  {
+    grab_events(info[0]->IsTrue());
   }
 }
 
@@ -563,6 +580,9 @@ NAN_MODULE_INIT(Init) {
 
   Nan::Set(target, Nan::New<String>("grabMouseClick").ToLocalChecked(),
   Nan::GetFunction(Nan::New<FunctionTemplate>(GrabMouseClick)).ToLocalChecked());
+
+  Nan::Set(target, Nan::New<String>("grabEvents").ToLocalChecked(),
+  Nan::GetFunction(Nan::New<FunctionTemplate>(GrabEvents)).ToLocalChecked());
 }
 
 NODE_MODULE(nodeHook, Init)
