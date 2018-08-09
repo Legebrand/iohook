@@ -7,7 +7,6 @@ stacktrace*
 *.iml
 build
 .env
-prebuilds
 builds
 *.DS_Store
 examples/electron-example/.DS_Store
