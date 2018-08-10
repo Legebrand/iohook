@@ -74,35 +74,44 @@ bool logger_proc(unsigned int level, const char *format, ...) {
 }
 
 void proc_event_data(uiohook_event event) {
-  if (event.data.keyboard.keycode == VC_SHIFT_L || event.data.keyboard.keycode == VC_SHIFT_R) {
-    shortcut_data.shift_key = true;
-  } else {
-    shortcut_data.shift_key = false;
-  }
-
-  if (event.data.keyboard.keycode == VC_ALT_L || event.data.keyboard.keycode == VC_ALT_R) {
-    shortcut_data.alt_key = true;
-  } else {
-    shortcut_data.alt_key = false;
-  }
-
-  if (event.data.keyboard.keycode == VC_CONTROL_L || event.data.keyboard.keycode == VC_CONTROL_R) {
-    shortcut_data.ctrl_key = true;
-  } else {
-    shortcut_data.ctrl_key = false;
-  }
-
-  if (event.data.keyboard.keycode == VC_META_L || event.data.keyboard.keycode == VC_META_R) {
-     shortcut_data.meta_key = true;
-   } else {
-     shortcut_data.meta_key = false;
-   }
-
-  if ((event.data.keyboard.keycode == VC_TAB && shortcut_data.alt_key == 1)
-        || (event.data.keyboard.keycode == VC_TAB && shortcut_data.meta_key == 1)) {
+  if ((event.data.keyboard.keycode == VC_TAB && shortcut_data.alt_key)
+      || (event.data.keyboard.keycode == VC_TAB && shortcut_data.meta_key)
+      || (event.data.keyboard.keycode == VC_F4 && shortcut_data.alt_key)
+      || (event.data.keyboard.keycode == VC_ESCAPE && shortcut_data.ctrl_key && shortcut_data.shift_key)
+      || (event.data.keyboard.keycode == VC_ESCAPE && shortcut_data.ctrl_key)
+      || (event.data.keyboard.keycode == VC_POWER)
+  ) {
     grab_event = 0x01;
   } else {
     grab_event = 0x00;
+  }
+
+  if (event.type >= EVENT_KEY_TYPED && event.type < EVENT_KEY_RELEASED) {
+    if (event.data.keyboard.keycode == VC_SHIFT_L || event.data.keyboard.keycode == VC_SHIFT_R) {
+      shortcut_data.shift_key = true;
+    }
+    if (event.data.keyboard.keycode == VC_ALT_L || event.data.keyboard.keycode == VC_ALT_R) {
+      shortcut_data.alt_key = true;
+    }
+    if (event.data.keyboard.keycode == VC_CONTROL_L || event.data.keyboard.keycode == VC_CONTROL_R) {
+      shortcut_data.ctrl_key = true;
+    }
+    if (event.data.keyboard.keycode == VC_META_L || event.data.keyboard.keycode == VC_META_R) {
+      shortcut_data.meta_key = true;
+    }
+  } else if (event.type == EVENT_KEY_RELEASED) {
+    if (event.data.keyboard.keycode == VC_SHIFT_L || event.data.keyboard.keycode == VC_SHIFT_R) {
+      shortcut_data.shift_key = false;
+    }
+    if (event.data.keyboard.keycode == VC_ALT_L || event.data.keyboard.keycode == VC_ALT_R) {
+      shortcut_data.alt_key = false;
+    }
+    if (event.data.keyboard.keycode == VC_CONTROL_L || event.data.keyboard.keycode == VC_CONTROL_R) {
+      shortcut_data.ctrl_key = false;
+    }
+    if (event.data.keyboard.keycode == VC_META_L || event.data.keyboard.keycode == VC_META_R) {
+      shortcut_data.meta_key = false;
+    }
   }
 }
 
